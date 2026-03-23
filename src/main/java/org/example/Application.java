@@ -1,11 +1,15 @@
 package org.example;
 
+import org.example.client.JsonPlaceHolderClient;
 import org.example.controller.PingController;
 import org.example.service.NameService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -31,7 +35,15 @@ public class Application {
     }
 
     @Bean
-    RouterFunction<ServerResponse> routerFunction(NameService nameService) {
+    JsonPlaceHolderClient jsonPlaceHolderClient(RestClient.Builder restClientBuilder) {
+        HttpServiceProxyFactory proxyFactory = HttpServiceProxyFactory.builder()
+                .exchangeAdapter(RestClientAdapter.create(restClientBuilder.build()))
+                .build();
+        return proxyFactory.createClient(JsonPlaceHolderClient.class);
+    }
+
+    @Bean
+    RouterFunction<ServerResponse> routerFunction(NameService nameService, JsonPlaceHolderClient jsonPlaceHolderClient) {
         return RouterFunctions
                 .route()
                 .GET("/functional/ping", request -> ServerResponse.ok().body(Map.of("pong", "Hello World!")))
@@ -42,6 +54,9 @@ public class Application {
                             nameService.add(name);
                             return ServerResponse.ok().build();
                         })
+                        .build())
+                .path("/json-placeholder", uriBuilder -> uriBuilder
+                        .GET("/user", request -> ServerResponse.ok().body(jsonPlaceHolderClient.allUser()))
                         .build())
                 .build();
     }
