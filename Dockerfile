@@ -1,7 +1,10 @@
-FROM public.ecr.aws/lambda/java:25
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:25
 
-COPY target/classes ${LAMBDA_TASK_ROOT}
-COPY target/dependency/* ${LAMBDA_TASK_ROOT}/lib/
+RUN mkdir -p /function
+WORKDIR /function
 
+COPY target/dependency/*.jar ./
+COPY target/*.jar ./
+
+ENTRYPOINT [ "/usr/bin/java", "-cp", "./*", "com.amazonaws.services.lambda.runtime.api.client.AWSLambda" ]
 CMD [ "org.example.StreamLambdaHandler::handleRequest" ]
-# docker buildx build --platform linux/amd64 --provenance=false -t aws-lambda-springboot .

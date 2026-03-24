@@ -3,6 +3,8 @@ The aws-lambda-springboot project, created with [`aws-serverless-java-container`
 
 [Deploy Java Lambda functions with container images](https://docs.aws.amazon.com/lambda/latest/dg/java-image.html).
 
+[Using an alternative base image with the runtime interface client](https://docs.aws.amazon.com/lambda/latest/dg/java-image.html#java-image-clients).
+
 ## Build , Test and Deploy
 
 ### Build and Create a docker Image
