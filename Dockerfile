@@ -1,11 +1,7 @@
-FROM public.ecr.aws/amazoncorretto/amazoncorretto:25
+FROM public.ecr.aws/lambda/java:25
 
-WORKDIR /src
+COPY target/classes ${LAMBDA_TASK_ROOT}
+COPY target/dependency/* ${LAMBDA_TASK_ROOT}/lib/
 
-COPY target/dependency/*.jar ./
-COPY target/*.jar ./
-
-# Set runtime interface client as default command for the container runtime
-ENTRYPOINT [ "/usr/bin/java", "-cp", "./*", "com.amazonaws.services.lambda.runtime.api.client.AWSLambda" ]
-# Pass the name of the function handler as an argument to the runtime
 CMD [ "org.example.StreamLambdaHandler::handleRequest" ]
+# docker buildx build --platform linux/amd64 --provenance=false -t aws-lambda-springboot .

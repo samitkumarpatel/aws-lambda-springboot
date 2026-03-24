@@ -1,0 +1,183 @@
+openapi: 3.1.0
+info:
+  title: AWS Lambda Spring Boot API
+  description: REST API for the aws-lambda-springboot application
+  version: 1.0.0-SNAPSHOT
+
+servers:
+  - url: /
+    description: Default server
+
+paths:
+
+  /ping:
+    get:
+      summary: Ping (MVC)
+      description: Returns a simple Hello World pong message via the Spring MVC controller.
+      operationId: ping
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PongResponse'
+              example:
+                pong: "Hello, World!"
+
+  /functional/ping:
+    get:
+      summary: Ping (Functional)
+      description: Returns a simple Hello World pong message via the functional router.
+      operationId: functionalPing
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PongResponse'
+              example:
+                pong: "Hello World!"
+
+  /functional/name:
+    get:
+      summary: Get all names
+      description: Returns the list of names currently stored in memory.
+      operationId: getNames
+      tags:
+        - Name
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamesResponse'
+              example:
+                names:
+                  - Alice
+                  - Bob
+    post:
+      summary: Add a name
+      description: Adds a new name to the in-memory list.
+      operationId: addName
+      tags:
+        - Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddNameRequest'
+            example:
+              name: "Alice"
+      responses:
+        '200':
+          description: Name added successfully
+        '400':
+          description: Missing 'name' field in request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Missing 'name' in request body"
+
+  /json-placeholder/user:
+    get:
+      summary: Get all users
+      description: Proxies a request to JSONPlaceholder and returns the list of users.
+      operationId: getAllUsers
+      tags:
+        - JSONPlaceholder
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              example:
+                - id: "1"
+                  name: "Leanne Graham"
+                  username: "Bret"
+                  email: "Sincere@april.biz"
+                  phone: "1-770-736-8031 x56442"
+
+components:
+  schemas:
+
+    PongResponse:
+      type: object
+      properties:
+        pong:
+          type: string
+          description: Greeting message
+      required:
+        - pong
+      example:
+        pong: "Hello, World!"
+
+    NamesResponse:
+      type: object
+      properties:
+        names:
+          type: array
+          items:
+            type: string
+          description: List of stored names
+      required:
+        - names
+
+    AddNameRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name to add
+      required:
+        - name
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+    User:
+      type: object
+      description: A user from the JSONPlaceholder service
+      properties:
+        id:
+          type: string
+          description: User ID
+        name:
+          type: string
+          description: Full name
+        username:
+          type: string
+          description: Username
+        email:
+          type: string
+          format: email
+          description: Email address
+        phone:
+          type: string
+          description: Phone number
+      required:
+        - id
+        - name
+        - username
+        - email
+        - phone
+

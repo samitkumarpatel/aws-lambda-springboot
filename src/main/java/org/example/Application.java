@@ -46,13 +46,17 @@ public class Application {
     RouterFunction<ServerResponse> routerFunction(NameService nameService, JsonPlaceHolderClient jsonPlaceHolderClient) {
         return RouterFunctions
                 .route()
-                .GET("/functional/ping", request -> ServerResponse.ok().body(Map.of("pong", "Hello World!")))
+                .GET("/functional/ping", request -> ServerResponse.ok().body(Map.of("pong", "Hello World functional!")))
                 .path("/functional/name", uriBuilder -> uriBuilder
-                        .GET(request -> ServerResponse.ok().body(nameService.names()))
+                        .GET(request -> ServerResponse.ok().body(Map.of("names", nameService.names())))
                         .POST(request -> {
-                            var name = request.body(String.class);
-                            nameService.add(name);
-                            return ServerResponse.ok().build();
+                            var requestBody = request.body(Map.class);
+                            if (requestBody.containsKey("name")) {
+                                nameService.add(requestBody.get("name").toString());
+                                return ServerResponse.ok().build();
+                            } else {
+                                return ServerResponse.badRequest().body(Map.of("error", "Missing 'name' in request body"));
+                            }
                         })
                         .build())
                 .path("/json-placeholder", uriBuilder -> uriBuilder
